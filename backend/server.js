@@ -9,18 +9,15 @@ const teamRoutes = require('./routes/teams');
 const formRoutes = require('./routes/forms');
 const responseRoutes = require('./routes/responses');
 const { verifyToken } = require('./middleware/authMiddleware');
-const fs = require("fs");
 
-if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  const serviceAccount = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, "base64").toString("utf8");
+const serviceAccount = JSON.parse(
+  Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, "base64").toString("utf8")
+);
 
-  fs.writeFileSync("serviceAccountKey.json", serviceAccount);
-}
-
-const serviceAccount = require('./serviceAccountKey.json');
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
+  credential: admin.credential.cert(serviceAccount),
+});
+
 const app = express();
 const PORT = process.env.PORT || 5050;
 
