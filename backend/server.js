@@ -18,10 +18,15 @@ const app = express();
 const PORT = process.env.PORT || 5050;
 
 app.use(cors({
-    origin: "*", 
-    credentials: true,
+  origin: "https://dataflow25.vercel.app", 
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  allowedHeaders: "Content-Type, Authorization"
 }));
-app.use(express.json());
+
+app.use(express.json()); 
+
+app.options("*", cors());
+
 app.use('/api/auth', authRoutes);
 app.use('/api/teams', teamRoutes);
 app.use('/api/forms', formRoutes);
