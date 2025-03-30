@@ -2,9 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Team = require("../models/Team");
 const User = require("../models/User");
-//const authMiddleware = require("../middleware/authMiddleware");
 
-// Create Team
 router.post("/create", async (req, res) => {
     try {
       const { name, description, leaderEmail } = req.body;
@@ -13,7 +11,6 @@ router.post("/create", async (req, res) => {
         return res.status(400).json({ message: "Team name and leader email are required" });
       }
   
-      // Create team with leader as the first member (admin)
       const team = new Team({
         name,
         description,
@@ -48,7 +45,6 @@ router.post("/:teamId/join-request", async (req, res) => {
     }
   });
 
-// Add Member
 router.post("/:teamId/add-member", async (req, res) => {
   try {
     const { teamId } = req.params;
@@ -67,7 +63,6 @@ router.post("/:teamId/add-member", async (req, res) => {
   }
 });
 
-// Remove Member
 router.delete("/:teamId/remove-member/:email", async (req, res) => {
   try {
     const { teamId, email } = req.params;
@@ -96,13 +91,12 @@ router.delete("/:teamId/delete", async (req, res) => {
 });
 
 router.get("/user/:email", async (req, res) => {
-    console.log("Fetching teams");
     try {
       const { email } = req.params;
       const teams = await Team.find({ "members.email": email });
   
       if (!teams.length) {
-        return res.status(404).json({ message: "No teams found for this user" });
+        return res.status(200).json([]);
       }
   
       res.status(200).json(teams);
@@ -116,7 +110,7 @@ router.get("/user/:email", async (req, res) => {
       const teamId = parseInt(req.params.teamId);
       if (isNaN(teamId)) return res.status(400).json({ message: "Invalid team ID" });
   
-      const team = await Team.findOne({ teamId }).select("-members"); // Fetch without members first
+      const team = await Team.findOne({ teamId }).select("-members");
       if (!team) return res.status(404).json({ message: "Team not found" });
   
       res.status(200).json(team);
@@ -126,7 +120,6 @@ router.get("/user/:email", async (req, res) => {
     }
   });
   
-  // Fetch members separately
   router.get("/:teamId/members", async (req, res) => {
     try {
       const { teamId } = req.params;
@@ -148,7 +141,6 @@ router.get("/user/:email", async (req, res) => {
     }
   });
   
-  // Update member permissions
   router.put("/:teamId/members/:email/permissions", async (req, res) => {
     try {
       const { teamId, email } = req.params;
@@ -174,11 +166,10 @@ router.get("/user/:email", async (req, res) => {
     }
   });
   
-  // Accept or Reject Join Request
   router.post("/:teamId/join-request/:email/respond", async (req, res) => {
     try {
       const { teamId, email } = req.params;
-      const { action } = req.body; // action should be "accept" or "reject"
+      const { action } = req.body; 
   
       const team = await Team.findOne({ teamId });
       if (!team) return res.status(404).json({ message: "Team not found" });
@@ -192,7 +183,6 @@ router.get("/user/:email", async (req, res) => {
         team.members.push({ email, permissions: ["read"] });
       }
   
-      // Remove the request from the list after accepting/rejecting
       team.joinRequests.splice(requestIndex, 1);
       await team.save();
   
